@@ -1,0 +1,79 @@
+---
+title: "A report"
+author: "Liangzi"
+date: "2025-02-19"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+#install.packages("tinytex")
+#install.packages("_XQuartz")
+#tinytex::install_tinytex()
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Prepare the R Environment
+
+
+```{r}
+# Load library/ packages
+library(tidyverse)
+```
+
+```{r load-data}
+# Load in lake ontario microbial community data
+sample_and_taxon <-
+  read_csv("sample_and_taxon.csv")
+# Inspect the data
+glimpse(sample_and_taxon)
+View(sample_and_taxon)
+```
+
+# Lake Ontario Microbial Abundance Versus Temperature
+```{r cells_vs_temp}
+# temp on the x
+# cell abundance on the y
+# colored by env_group
+# make it look nice 
+ggplot(data = sample_and_taxon, by = "env_group", 
+       aes(x = temperature, y = cells_per_ml, 
+                   color = env_group)) +
+    geom_point(aes(color = env_group)) +
+  labs(x = "temperature", y = "Abundance") +
+  #scale_color_manual(values = c("godenrodl"))
+  geom_smooth(method = "lm", color = "black") +
+  theme_classic() +
+  theme(legend.position = "bottom",
+        legend.title = element_blank())
+
+```
+
+The above plot shows that"
+- There is a positive relationship between temperature and cell abundance.
+- For example, deep samples are the coldest and habe the fewest cells.
+
+```{r data=summary, include = FALSE}
+# Hoow many samples do I have?
+n_samples <-
+  sample_and_taxon %>%
+  # Only pick out sample_id column
+  select(sample_id) %>%
+  # Number of distinct names in the column
+  n_distinct()
+
+# Calculate the minimum and maximum temps
+# min
+minTemp <-
+  sample_and_taxon %>% 
+  summarize(round(min(temperature), digits = 1)) %>%
+pull()  # only give me a number
+# max
+maxTemp <-
+sample_and_taxon %>% 
+  summarize(round(max(temperature), digits = 1)) %>%
+pull()
+  
+```
+
+The total number of samples is 'r n_samples'. For this set of samples, temperature ranged from a minimum of 'r minTemp' Celsius to a maximum of 'r maxTemp' Celsius
